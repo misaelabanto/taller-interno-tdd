@@ -1,28 +1,26 @@
-const DEFAULT_MINIMUM_QUANTITY = 1;
+import { Campaign } from './campaign';
+import { SaleItem } from './sale-item';
 
 export class DiscountQuery {
-	discount: number;
-	basePrice: number;
-	quantity: number;
-	minimumQuantity: number = DEFAULT_MINIMUM_QUANTITY;
+	saleItem: SaleItem;
+	campaign: Campaign;
 
 	constructor(query: Partial<DiscountQuery>) {
-		this.discount = query.discount;
-		this.basePrice = query.basePrice;
-		this.quantity = query.quantity;
-		this.minimumQuantity = query.minimumQuantity;
+		this.saleItem = query.saleItem;
+    this.campaign = query.campaign;
 	}
 
 	private getApplicableQuantity() {
-		return this.quantity >= this.minimumQuantity
-			? this.quantity
-			: Math.floor(this.quantity);
+		return this.saleItem.quantity >= this.campaign.discounts[0].minimumQuantity
+			? this.saleItem.quantity
+			: Math.floor(this.saleItem.quantity);
 	}
 
 	calculate() {
 		const quantityApplicable = this.getApplicableQuantity();
+    const campaignDiscount = this.campaign.discounts[0];
 		return truncateDecimals(
-			this.discount * this.basePrice * quantityApplicable
+			campaignDiscount.discount * this.saleItem.product.price * quantityApplicable
 		);
 	}
 }
